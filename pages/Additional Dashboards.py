@@ -6,3 +6,6 @@ import pandas as pd
 #reference for streamlit emoji: https://streamlit-emoji-shortcodes-streamlit-app-gwckff.streamlit.app/
 st.title(" 	:chart_with_upwards_trend: Additional Dashboards")
 shopping_df = pd.read_csv('shopping_behavior_new_updated.csv')
+
+# reference: https://www.youtube.com/watch?v=7yAw1nPareM
+st.sidebar.header("Choose your filter:")
