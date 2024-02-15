@@ -45,33 +45,32 @@ cols1, cols2, cols3= st.columns((0.8,2,3), gap='medium')
 with cols1:
         st.write("Filter: Customer's Gender Chart")
         slider_age = st.slider('Age slider', min_value=shopping_df['Age'].min(), max_value=shopping_df['Age'].max())
-         
-        if slider_age <= 19:
-            st.write("Age Group: Teenager")
-            filtered = shopping_df[shopping_df['Age'] == slider_age]
-        elif slider_age >= 20 and slider_age <= 24:
-            st.write("Age Group: Young Adult")
-            filtered = shopping_df.groupby('Gender')['Purchase Amount (USD)'].sum().reset_index()
-        elif slider_age >= 25 and slider_age <= 49:
-            st.write("Age Group: Adult")
-        else:
-            st.write("Age Group: Old")
         
         options_by_fop = st.selectbox('Select:', shopping_df['Frequency of Purchases'].unique(), index=None )
         st.markdown("-------")
         
         st.write("Filter: Seasons by Total Sales")
-        options_by_discount = st.selectbox('Select Category:', shopping_df['Discount Applied'].unique(), index=None)
+        options_by_discount = st.selectbox('Select Disount Applied:', shopping_df['Discount Applied'].unique(), index=None)
         
         
 with cols2:
         st.subheader("Customer's Gender", divider='rainbow')
-            
-        if options_by_fop:
-            filtered = shopping_df[shopping_df['Frequency of Purchases'] == options_by_fop]
+        
+        if slider_age <= 19:
+            st.write("Age Group: Teenager")
+            filtered = shopping_df[shopping_df['Age'] == slider_age]
+        elif slider_age >= 20 and slider_age <= 24:
+            st.write("Age Group: Young Adult")
+            filtered = shopping_df[shopping_df['Age'] == slider_age]
+        elif slider_age >= 25 and slider_age <= 49:
+            st.write("Age Group: Adult")
+            filtered = shopping_df[shopping_df['Age'] == slider_age]
         else:
-            filtered = shopping_df.groupby('Gender')['Purchase Amount (USD)'].sum().reset_index()
+            st.write("Age Group: Old")
+            filtered = shopping_df[shopping_df['Age'] == slider_age]
             
+        if options_by_fop:    
+         filtered = shopping_df[shopping_df['Frequency of Purchases'] == options_by_fop]
           
         fig_gender = px.pie(filtered, values="Purchase Amount (USD)", names="Gender", color_discrete_sequence=px.colors.qualitative.Plotly, hole= 0.5)
         fig_gender.update_traces(text = filtered['Gender'], textposition = "outside")
@@ -207,5 +206,7 @@ st.plotly_chart(fig_box)
 # https://stackoverflow.com/questions/57954510/python-plotly-bar-chart-count-items-from-csv
 # https://snyk.io/advisor/python/streamlit/functions/streamlit.selectbox
 # https://github.com/streamlit/streamlit/issues/949
+# https://plotly.com/python/setting-graph-size/
+
 
 
