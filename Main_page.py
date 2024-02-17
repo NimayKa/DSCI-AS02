@@ -147,18 +147,20 @@ with col3s:
     st.subheader("Popular Category", divider='rainbow')
            
     if options_by_gender == 'Female':
-        popular = shopping_df[shopping_df['Gender'] == options_by_gender]
+        popular = shopping_df[shopping_df['Gender'] == options_by_gender].groupby('Category')['Purchase Amount (USD)'].sum().reset_index()
     elif options_by_gender == 'Male':
-        popular = shopping_df[shopping_df['Gender'] == options_by_gender]
+        popular = shopping_df[shopping_df['Gender'] == options_by_gender].groupby('Category')['Purchase Amount (USD)'].sum().reset_index()
     else:
-        popular = shopping_df.groupby('Category').count().reset_index()
+        popular = shopping_df.groupby('Category')['Purchase Amount (USD)'].sum().reset_index()
+
+    #     popular = shopping_df.groupby('Category').count().reset_index()
     
-    popular = popular.rename(columns={"Customer ID": "Count"})
+    # popular = popular.rename(columns={"Customer ID": "Count"})
             
     fig_category = px.bar(
                 popular,
                 x="Category",
-                y="Count",
+                y="Purchase Amount (USD)",
                 orientation="v",
                 color="Category",
                 template="plotly",)
