@@ -27,7 +27,7 @@ with col1:
     
     # Filters
     st.subheader("Total Sales:")
-    st.subheader(f"US $ {total_sales:,}")
+    text1 = st.subheader(f"US $ {total_sales:,}")
     st.markdown('__________')
     
 with col2:
@@ -163,7 +163,9 @@ with col3s:
                 y="Purchase Amount (USD)",
                 orientation="v",
                 color="Category",
-                template="plotly",)
+                template="plotly",
+                text= popular['Purchase Amount (USD)'].apply(lambda x: f'{x/1000:.1f}')
+                )
             
             
     st.plotly_chart(fig_category, use_container_width=True)
