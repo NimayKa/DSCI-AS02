@@ -40,13 +40,14 @@ with col3:
     st.subheader(f"{average_age} years")  
     st.markdown('___________')
 
-cols1, cols2, cols3= st.columns((0.8,2,3), gap='medium')
+# _ for empty column 
+cols1, cols2, cols3 = st.columns((0.8,2,3), gap='medium')
 
 with cols1:
         st.write("Filter: Customer's Gender Chart")
         slider_age = st.slider('Age slider', min_value=shopping_df['Age'].min(), max_value=shopping_df['Age'].max())
         
-        options_by_fop = st.selectbox('Select:', shopping_df['Frequency of Purchases'].unique(), index=None )
+        options_by_fop = st.selectbox('Select frequency of purchases:', shopping_df['Frequency of Purchases'].unique(), index=None )
         st.markdown("-------")
         
         st.write("Filter: Seasons by Total Sales")
@@ -94,12 +95,14 @@ with cols3:
                 
         st.plotly_chart(fig_season, use_container_width=True)
     
-col1s, col2s, col3s= st.columns((0.9,2,3), gap='medium')
+col1s, col2s, col3s = st.columns((0.8,2,3), gap='medium')
     
 with col1s:
-    
-        st.markdown("                                  ")
-        st.markdown("-------")
+
+        # for white space 
+        for _ in range (2):
+            st.markdown("")
+            
         st.markdown("Filter: Top Location among Customers chart")
         options_top_location = st.selectbox('Select:', ['Top 5 Location', 'Top 10 Location'])
         # options_by_subscription = st.selectbox('Select Subscription Status:', shopping_df['Subscription Status'].unique(), index=None)
@@ -144,9 +147,9 @@ with col3s:
     st.subheader("Popular Category", divider='rainbow')
            
     if options_by_gender == 'Female':
-        popular = shopping_df[shopping_df['Gender'] == 'Female']
+        popular = shopping_df[shopping_df['Gender'] == options_by_gender]
     elif options_by_gender == 'Male':
-        popular = shopping_df[shopping_df['Gender'] == 'Male']
+        popular = shopping_df[shopping_df['Gender'] == options_by_gender]
     else:
         popular = shopping_df.groupby('Category').count().reset_index()
     
@@ -162,7 +165,8 @@ with col3s:
             
             
     st.plotly_chart(fig_category, use_container_width=True)
-
+    
+_, _ = st.columns((0.3,0.3))
 st.subheader("Popular Shipping Type", divider='rainbow')    
 options_seasons = st.selectbox('Select season:', shopping_df['Season'].unique(), index=None)
 
@@ -184,17 +188,17 @@ fig_shipping = px.bar(
 st.plotly_chart(fig_shipping, use_container_width=True)
 st.markdown("                                    ")
 
+_, _ = st.columns((0.3,0.3))
 st.subheader("Purchase Amount and Frequency of Purchases", divider='rainbow')  
 fig_box = px.box(shopping_df,
                          x='Frequency of Purchases',
                          y='Purchase Amount (USD)',
-                         width= 1600,
+                         width= 1300,
                          height= 500)
 
 
 st.plotly_chart(fig_box)
 
-    
 # References :
 # https://plotly.com/python/line-charts/
 # https://plotly.com/python/discrete-color/
