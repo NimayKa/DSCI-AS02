@@ -1,8 +1,5 @@
 import pandas as pd
 import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt 
-import seaborn as sns 
 import plotly.express as px
 import pydeck as pdk 
 
@@ -16,35 +13,44 @@ st.sidebar.success("Select a page.")
 
 shopping_df = pd.read_csv('shopping_behavior_new_updated.csv')
 
-col1, col2, col3 = st.columns((2.5, 2.5, 2.5), gap='medium')
+# for white space
+for _ in range (3):
+    st.markdown("")
+
+#Top KPI's
+total_sales = int(shopping_df['Purchase Amount (USD)'].sum())
+average_rating = round(shopping_df['Review Rating'].mean(), 1)
+star_rating = ":star:" * int(round(average_rating, 0))
+average_age = round(shopping_df['Age'].mean())
     
+_, col1, col2, col3, _ = st.columns((0.3, 2.5, 2.5, 2.5, 0.3), gap='medium')
+
 with col1:
-    #Top KPI's
-    total_sales = int(shopping_df['Purchase Amount (USD)'].sum())
-    average_rating = round(shopping_df['Review Rating'].mean(), 1)
-    star_rating = ":star:" * int(round(average_rating, 0))
-    average_age = round(shopping_df['Age'].mean())
-    
-    # Filters
     st.subheader("Total Sales:")
-    text1 = st.subheader(f"US $ {total_sales:,}")
-    st.markdown('__________')
-    
+    st.subheader(f"US $ {total_sales:,}")
+
 with col2:
     st.subheader("Average Rating:")
     st.subheader(f"{average_rating} {star_rating}")  
-    st.markdown('___________')
+    
 
 with col3:
     st.subheader("Average Age:")
     st.subheader(f"{average_age} years")  
-    st.markdown('___________')
 
+st.markdown('__________')
+
+# For white space
+for _ in range (3):
+    st.markdown("")
+            
 # _ for empty column 
-cols1, cols2, cols3 = st.columns((0.8,2,3), gap='medium')
+_, cols1, cols2, cols3, _= st.columns((0.3,1.5,3,3.5,0.3), gap='medium')
 
 with cols1:
+        st.markdown("                                  ")
         st.write("Filter: Customer's Gender Chart")
+        all_age = st.checkbox('For All age')
         slider_age = st.slider('Age slider', min_value=shopping_df['Age'].min(), max_value=shopping_df['Age'].max())
         
         options_by_fop = st.selectbox('Select frequency of purchases:', shopping_df['Frequency of Purchases'].unique(), index=None )
@@ -56,6 +62,9 @@ with cols1:
         
 with cols2:
         st.subheader("Customer's Gender", divider='rainbow')
+        
+        if all_age:
+            filtered =  shopping_df['Gender'].value_counts()
         
         if slider_age <= 19:
             st.write("Age Group: Teenager")
@@ -73,7 +82,7 @@ with cols2:
         if options_by_fop:    
          filtered = shopping_df[shopping_df['Frequency of Purchases'] == options_by_fop]
           
-        fig_gender = px.pie(filtered, values="Purchase Amount (USD)", names="Gender", color_discrete_sequence=px.colors.qualitative.Plotly, hole= 0.5)
+        fig_gender = px.pie(filtered, values="Purchase Amount (USD)", names="Gender", color_discrete_sequence=px.colors.qualitative.Dark24, hole= 0.5)
         fig_gender.update_traces(text = filtered['Gender'], textposition = "outside")
                 
         st.plotly_chart(fig_gender, use_container_width=True)
@@ -94,8 +103,12 @@ with cols3:
                             markers=True)
                 
         st.plotly_chart(fig_season, use_container_width=True)
+
+# for white space
+for _ in range (3):
+    st.markdown("")
     
-col1s, col2s, col3s = st.columns((0.8,2,3), gap='medium')
+_, col1s, col2s, col3s, _ = st.columns((0.3,1.5,3.5,3.5,0.3), gap='medium')
     
 with col1s:
 
@@ -110,7 +123,7 @@ with col1s:
         st.markdown("Filter: Popular Category chart")
         options_by_age = st.selectbox('Select age group:', shopping_df['Age Group'].unique(), index=None)
         options_by_gender = st.radio('Select gender:', ['None', 'Female', 'Male'])
-        st.markdown('___________')
+        
         
     
 with col2s:
@@ -133,7 +146,9 @@ with col2s:
                     y=top_location.index,
                     orientation="h",
                     color="Location",
-                    template="plotly_white",
+                    template="simple_white",
+                    color_discrete_sequence="Pastel",
+                    color_continuous_scale="SunsetDark",
                     labels={'x':'Count', 'y': 'Locations'}
                 )
         
@@ -143,7 +158,7 @@ with col2s:
         
 with col3s:
     
-    st.markdown("                                  ")    
+    st.markdown("                                  ")
     st.subheader("Popular Category", divider='rainbow')
            
     if options_by_gender == 'Female':
@@ -170,7 +185,11 @@ with col3s:
             
     st.plotly_chart(fig_category, use_container_width=True)
     
-_, _ = st.columns((0.3,0.3))
+# For white space
+for _ in range (3):
+    st.markdown("")    
+    
+_, _ = st.columns((1,1), gap='medium')
 st.subheader("Popular Shipping Type", divider='rainbow')    
 options_seasons = st.selectbox('Select season:', shopping_df['Season'].unique(), index=None)
 
@@ -192,7 +211,11 @@ fig_shipping = px.bar(
 st.plotly_chart(fig_shipping, use_container_width=True)
 st.markdown("                                    ")
 
-_, _ = st.columns((0.3,0.3))
+# For white space
+for _ in range (3):
+    st.markdown("")
+    
+_, _ = st.columns((1,1), gap='medium')
 st.subheader("Purchase Amount and Frequency of Purchases", divider='rainbow')  
 fig_box = px.box(shopping_df,
                          x='Frequency of Purchases',
