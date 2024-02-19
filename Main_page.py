@@ -51,22 +51,19 @@ with cols1:
         st.markdown("                                  ")
         st.write("Filter: Customer's Gender Chart")
         all_age = st.checkbox('For All age')
-        slider_age = st.slider('Age slider', min_value=shopping_df['Age'].min(), max_value=shopping_df['Age'].max())
+        slider_age = st.slider('Age slider', min_value=shopping_df['Age'].min(), max_value=shopping_df['Age'].max(), key='sliderage')
         
         options_by_fop = st.selectbox('Select frequency of purchases:', shopping_df['Frequency of Purchases'].unique(), index=None )
         st.markdown("-------")
-        
-        st.write("Filter: Seasons by Total Sales")
-        options_by_discount = st.selectbox('Select Disount Applied:', shopping_df['Discount Applied'].unique(), index=None)
         
         
 with cols2:
         st.subheader("Customer's Gender", divider='rainbow')
         
         if all_age:
-            filtered =  shopping_df['Gender'].value_counts()
+            filtered =  shopping_df
         
-        if slider_age <= 19:
+        elif slider_age <= 19:
             st.write("Age Group: Teenager")
             filtered = shopping_df[shopping_df['Age'] == slider_age]
         elif slider_age >= 20 and slider_age <= 24:
@@ -91,10 +88,7 @@ with cols3:
         # Line chart
         st.subheader("Seasons by Total Sales", divider='rainbow')
         
-        if options_by_discount:
-            season = shopping_df[shopping_df['Discount Applied'] == options_by_discount]
-        else:
-            season = shopping_df.groupby('Season')['Purchase Amount (USD)'].sum().sort_values(ascending=False)
+        season = shopping_df.groupby('Season')['Purchase Amount (USD)'].sum().sort_values(ascending=False)
             
         fig_season = px.line(season,
                              x=season.index,
@@ -151,6 +145,8 @@ with col2s:
                     color_continuous_scale="SunsetDark",
                     labels={'x':'Count', 'y': 'Locations'}
                 )
+    
+    fig_location.update_layout(xaxis_title='Count', yaxis_title='Location')
         
         # add filters according revenue (selectboxx)
     st.plotly_chart(fig_location, use_container_width=True)
@@ -216,7 +212,7 @@ for _ in range (3):
     st.markdown("")
     
 _, _ = st.columns((1,1), gap='medium')
-st.subheader("Purchase Amount and Frequency of Purchases", divider='rainbow')  
+st.subheader("Purchase Amount and Frequency of Purchases", divider='grey')  
 fig_box = px.box(shopping_df,
                          x='Frequency of Purchases',
                          y='Purchase Amount (USD)',
