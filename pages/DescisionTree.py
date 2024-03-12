@@ -3,34 +3,34 @@ import pickle
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score 
-
+pd.set_option('display.max_columns', None)
 current_directory = os.getcwd()
-current_directory = current_directory+'/DecisionTree'
-print (current_directory)
-file2 = os.path.join(current_directory,'shopping_behavior_new_updated.csv.csv')
-
-# Customer ID,Age,Gender,Item Purchased,Category,
-# Purchase Amount (USD),Location,Size,Color,Season,
-# Review Rating,Subscription Status,Shipping Type,
-# Discount Applied,Promo Code Used,Previous Purchases,
-# Payment Method,Frequency of Purchases,Age Group
+current_directory = current_directory + '/DecisionTree'
+print(current_directory)
+file_path = os.path.join(current_directory, 'shopping_behavior_new_updated.csv')
 
 store_df = pd.read_csv('./shopping_behavior_new_updated.csv')
 store_df.dropna(inplace=True)
 
-output = store_df['Location']
-features = store_df[['Category','Season',
-                     'Shipping Type','Payment Method',
-                     'Frequency of Purchases', 'Age Group']]
 
-features =  pd.get_dummies(features)
-print (features)
+output = store_df['Location']
+features = store_df[['Category', 'Season', 'Shipping Type', 'Payment Method', 'Frequency of Purchases', 'Age Group']]
+label_encoders = {}
+for feature in features.columns:
+    label_encoders[feature] = LabelEncoder()
+    store_df[f'Encoded_{feature}'] = label_encoders[feature].fit_transform(features[feature])
+
+features = store_df[['Encoded_Category', 'Encoded_Season',
+                     'Encoded_Shipping Type','Encoded_Payment Method',
+                     'Encoded_Frequency of Purchases','Encoded_Age Group']]
 output, uniques = pd.factorize(output) 
+
 x_train, x_test, y_train, y_test = train_test_split(
-	features, output, test_size=.2) 
+	features, output, test_size=.2)
 
 dtc = DecisionTreeClassifier(random_state=42)
 
@@ -51,7 +51,7 @@ with open(file_path2, 'wb') as output_pickle:
  
 fig, ax = plt.subplots() 
 ax = sns.barplot(x=dtc.feature_importances_, y=features.columns) 
-plt.title('Which features are the most important for species prediction?') 
+plt.title('Which features are the most important for features prediction?') 
 plt.xlabel('Importance') 
 plt.ylabel('Feature') 
 plt.tight_layout() 
