@@ -4,8 +4,7 @@ import plotly.express as px
 
 st.set_page_config(
     page_title = "Consumer Behavior and Shopping Habits in United States",
-    layout="wide"
-    
+    layout="wide" 
 )
 
 st.title(":bar_chart: Consumer Behavior and Shopping Habits in United States")
