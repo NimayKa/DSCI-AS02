@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, classification_report
 pd.set_option('display.max_columns', None)
 current_directory = os.getcwd()
 file_path = os.path.join(current_directory,'Pickle/dtc.pickle')
-file_path2 = os.path.join(current_directory,'Pickle/output.pickle')
+file_path2 = os.path.join(current_directory,'Pickle/dtc_output.pickle')
 
 store_df = pd.read_csv('shopping_behavior_new_updated.csv')
 store_df.dropna(inplace=True)
