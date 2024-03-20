@@ -1,7 +1,16 @@
 import pandas as pd 
+import os
+import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import LabelEncoder
+
+current_directory = os.getcwd()
+file_path = os.path.join(current_directory, 'Pickle/rf.pickle')
+file_path2 = os.path.join(current_directory, 'Pickle/rf_output.pickle')
 
 df = pd.read_csv('shopping_behavior_new_updated.csv')
 
@@ -11,7 +20,11 @@ features = df[['Age', 'Gender', 'Item Purchased', 'Category',
 
 output = df['Subscription Status']
 
-features = pd.get_dummies(features)
+label_encoder = LabelEncoder()
+
+for column in features:
+    if features[column].dtype == 'object':
+        features[column] = label_encoder.fit_transform(features[column])
 
 X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
 
@@ -48,3 +61,20 @@ print("Training Accuracy:", train_accuracy)
 print("Testing Accuracy:", test_accuracy)
 print("Classification Report:")
 print(classification_report(y_test, y_test_pred))
+
+with open(file_path, 'wb') as rf_pickle:
+	pickle.dump(rf_classifier, rf_pickle) 
+	rf_pickle.close() 
+
+# passing the mapping values
+with open(file_path2, 'wb') as output_pickle:
+	pickle.dump(output, output_pickle) 
+	output_pickle.close() 
+
+fig, ax = plt.subplots() 
+ax = sns.barplot(x=rf_classifier.feature_importances_, y=features.columns) 
+plt.title('Which features are the most important for species prediction?') 
+plt.xlabel('Importance') 
+plt.ylabel('Feature') 
+plt.tight_layout() 
+fig.savefig('Pickle/rf_feature_importance.png')
