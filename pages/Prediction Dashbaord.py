@@ -3,10 +3,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt 
 import pandas as pd 
 import pickle 
-from sklearn.metrics import accuracy_score 
+from sklearn.metrics import accuracy_score ,classification_report 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
  
 st.title('Penguin Classifier') 
 
@@ -35,12 +36,22 @@ if store_file is None:
 else: 
     store_df = pd.read_csv(store_file) 
     store_df = store_df.dropna() 
-    output = store_df['Subscription Status'] 
-    features = store_df[['Age', 'Gender', 'Item Purchased', 'Category',
-                        'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
-                        'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+    output = store_df['Subscription Status']
 
-    features = pd.get_dummies(features) 
+    features = store_df[['Gender', 'Item Purchased', 'Category',
+                        'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+    num_features =  store_df[['Age','Purchase Amount (USD)','Review Rating','Previous Purchases']]
+
+    encoders = {}
+
+    for feature in features:
+        encoder = LabelEncoder()
+        encoded_values = encoder.fit_transform(features[feature])
+        features.loc[:, feature] = encoded_values
+        encoders[feature] = encoder
+        
+    num_features = pd.get_dummies(num_features)  
+    features = pd.concat([features, num_features], axis=1)
 
     x_train, x_test, y_train, y_test = train_test_split(features, output, test_size=0.3, random_state=42)
 
@@ -53,6 +64,15 @@ else:
 
     train_accuracy = accuracy_score(y_train_pred, y_train)
     test_accuracy = accuracy_score(y_test_pred, y_test)
+
+    print("Training Accuracy:", train_accuracy)
+    print("Testing Accuracy:", test_accuracy)
+
+    print("Classification Report for Training Data:")
+    print(classification_report(y_train, y_train_pred))
+
+    print("Classification Report for Testing Data:")
+    print(classification_report(y_test, y_test_pred))
 
 unique_gender = store_df['Gender'].unique()
 unique_category = store_df['Category'].unique()
@@ -77,172 +97,115 @@ with st.form('user_inputs'):
     st.form_submit_button() 
 
 #preprocessing
-Gender_Female, Gender_Male = 0,0
 if gender =='Male':
-    Gender_Male = 1
-    Gender_Female = 0
+    gender = 0
 elif gender == 'Female':
-    Gender_Male = 0
-    Gender_Female = 1
-
-Item_Purchased_Backpack = 0
-Item_Purchased_Belt = 0
-Item_Purchased_Blouse = 0
-Item_Purchased_Boots = 0
-Item_Purchased_Coat = 0
-Item_Purchased_Dress= 0
-Item_Purchased_Gloves = 0
-Item_Purchased_Handbag = 0
-Item_Purchased_Hat = 0
-Item_Purchased_Hoodie = 0
-Item_Purchased_Jacket = 0
-Item_Purchased_Jeans = 0
-Item_Purchased_Jewelry = 0
-Item_Purchased_Pants = 0
-Item_Purchased_Sandals = 0
-Item_Purchased_Scarf = 0
-Item_Purchased_Shirt = 0
-Item_Purchased_Shoes = 0
-Item_Purchased_Shorts = 0
-Item_Purchased_Skirt = 0
-Item_Purchased_Sneakers = 0
-Item_Purchased_Socks = 0
-Item_Purchased_Sunglasses = 0
-Item_Purchased_Sweater = 0
-Item_Purchased_Tshirt = 0
+    gender = 1
 
 # Update the corresponding item variable to 1
 if item_purchased == "Backpack":
-    Item_Purchased_Backpack = 1
+    item_purchased = 2
 elif item_purchased == "Belt":
-    Item_Purchased_Belt = 1
+    item_purchased = 23
 elif item_purchased == "Blouse":
-    Item_Purchased_Blouse = 1
+    item_purchased = 11
 elif item_purchased == "Boots":
-    Item_Purchased_Boots = 1
+    item_purchased = 14
 elif item_purchased == "Coat":
-    Item_Purchased_Coat = 1
+    item_purchased = 20
 elif item_purchased == "Dress_":
-    Item_Purchased_Dress = 1
+    item_purchased = 16
 elif item_purchased == "Gloves":
-    Item_Purchased_Gloves = 1
+    item_purchased = 18
 elif item_purchased == "Handbag":
-    Item_Purchased_Handbag = 1
+    item_purchased = 4
 elif item_purchased == "Hat":
-    Item_Purchased_Hat = 1
+    item_purchased = 7
 elif item_purchased == "Hoodie":
-    Item_Purchased_Hoodie = 1
+    item_purchased = 17
 elif item_purchased == "Jacket":
-    Item_Purchased_Jacket = 1
+    item_purchased = 6
 elif item_purchased == "Jeans":
-    Item_Purchased_Jeans = 1
+    item_purchased = 19
 elif item_purchased == "Jewelry":
-    Item_Purchased_Jewelry = 1
+    item_purchased = 22
 elif item_purchased == "Pants":
-    Item_Purchased_Pants = 1
+    item_purchased = 13
 elif item_purchased == "Sandals":
-    Item_Purchased_Sandals = 1
+    item_purchased = 10
 elif item_purchased == "Scarf":
-    Item_Purchased_Scarf = 1
+    item_purchased = 9
 elif item_purchased == "Shirt":
-    Item_Purchased_Shirt = 1
+    item_purchased = 12
 elif item_purchased == "Shoes":
-    Item_Purchased_Shoes = 1
+    item_purchased = 24
 elif item_purchased == "Shorts":
-    Item_Purchased_Shorts = 1
+    item_purchased = 15
 elif item_purchased == "Skirt":
-    Item_Purchased_Skirt = 1
+    item_purchased = 8
 elif item_purchased == "Sneakers":
-    Item_Purchased_Sneakers = 1
+    item_purchased = 21
 elif item_purchased == "Socks":
-    Item_Purchased_Socks = 1
+    item_purchased = 0
 elif item_purchased == "Sunglasses":
-    Item_Purchased_Sunglasses = 1
+    item_purchased = 1
 elif item_purchased == "Sweater":
-    Item_Purchased_Sweater = 1
+    item_purchased = 3
 elif item_purchased == "Tshirt":
-    Item_Purchased_Tshirt = 1
-    
-    
-Category_Accessories, Category_Clothing, Category_Footwear, Category_Outerwear=0,0,0,0 
-if category == 'Accessories':
-    Category_Accessories = 1
-elif category == 'Clothing':
-    Category_Clothing = 1
+    item_purchased = 6    
+
+if category == 'Clothing':
+    category = 1
 elif category == 'Footwear':
-    Category_Footwear = 1
-elif category == 'Outerwear':
-    Category_Outerwear = 1
+    category = 2
+elif category == 'Outerwater':
+    category = 3
+elif category == 'Accessories':
+    category = 0
 
-Discount_Applied_No, Discount_Applied_Yes = 0,0
 if discount == 'Yes':
-    Discount_Applied_Yes = 1
+    discount = 1
 elif discount == 'No':
-    Discount_Applied_No = 1
+    discount = 0
 
-Payment_Method_Bank_Transfer, Payment_Method_Cash, Payment_Method_Credit_Card, Payment_Method_Debit_Card, Payment_Method_PayPal, Payment_Method_Venmo= 0,0,0,0,0,0
-if payment_method == 'Bank Transfer':
-    Payment_Method_Bank_Transfer = 1
+if payment_method == 'Venmo':
+    payment_method = 5
 elif payment_method == 'Cash':
-    Payment_Method_Cash = 1
+    payment_method = 1
 elif payment_method == 'Credit Card':
-    Payment_Method_Credit_Card = 1
-elif payment_method == 'Debit Card':
-    Payment_Method_Debit_Card = 1
+    payment_method = 2
 elif payment_method == 'PayPal':
-    Payment_Method_PayPal = 1
-elif payment_method == 'Venmo':
-    Payment_Method_Venmo = 1
+    payment_method = 4
+elif payment_method == 'Bank Transfer':
+    payment_method = 0
+elif payment_method == 'Debit Card':
+    payment_method = 3
 
-Age_Group_Adult, Age_Group_Old, Age_Group_Teenager, Age_Group_Young_Adult  = 0,0,0,0
-if age_group == 'Adult':
-    Age_Group_Adult = 1
-elif age_group == 'Old':
-    Age_Group_Old = 1
+
+if age_group == 'Old':
+    age_group = 1
 elif age_group == 'Teenager':
-    Age_Group_Teenager = 1
+    age_group = 2
 elif age_group == 'Young Adult':
-    Age_Group_Young_Adult = 1
+    age_group = 3
+elif age_group == 'Adult':
+    age_group = 0
 
-FOP_Annually, FOP_Bi_Weekly, FOP_Every_3_Months, FOP_Fortnightly, FOP_Monthly, FOP_Quarterly, FOP_Weekly =0,0,0,0,0,0,0
-if fop == 'Annually':
-    FOP_Annually = 1
-elif fop == 'Bi-Weekly':
-    FOP_Bi_Weekly = 1
-elif fop == 'Every 3 Months':
-    FOP_Every_3_Months = 1
-elif fop == 'Fortnightly':
-    FOP_Fortnightly = 1
-elif fop == 'Monthly':
-    FOP_Monthly = 1
-elif fop == 'Quarterly':
-    FOP_Quarterly = 1
+if fop == 'Fortnightly':
+    fop = 3
 elif fop == 'Weekly':
-    FOP_Weekly = 1
+    fop = 6
+elif fop == 'Annually':
+    fop = 0
+elif fop == 'Querterly':
+    fop = 5
+elif fop == 'Bi-Weekly':
+    fop = 1
+elif fop == 'Monthly':
+    fop = 4
+elif fop == 'Every 3 Months':
+    fop = 2
 
-new_prediction = decision_tree_model.predict([[
-    age,purchased_amount,review_rating,previous_purchases,
-    Gender_Female, Gender_Male,Item_Purchased_Backpack,
-    Item_Purchased_Belt,Item_Purchased_Blouse,Item_Purchased_Boots,
-    Item_Purchased_Coat,Item_Purchased_Dress,Item_Purchased_Gloves,
-    Item_Purchased_Handbag,Item_Purchased_Hat,Item_Purchased_Hoodie,
-    Item_Purchased_Jacket, Item_Purchased_Jeans,
-    Item_Purchased_Jewelry, Item_Purchased_Pants,
-    Item_Purchased_Sandals,Item_Purchased_Scarf,
-    Item_Purchased_Shirt, Item_Purchased_Shoes,Item_Purchased_Shorts,
-    Item_Purchased_Skirt,Item_Purchased_Sneakers,
-    Item_Purchased_Socks, Item_Purchased_Sunglasses,
-    Item_Purchased_Sweater,Item_Purchased_Tshirt,
-    Category_Accessories, Category_Clothing, Category_Footwear,
-    Category_Outerwear,Discount_Applied_No, Discount_Applied_Yes,
-    Payment_Method_Bank_Transfer, Payment_Method_Cash,
-    Payment_Method_Credit_Card,Payment_Method_Debit_Card,
-    Payment_Method_PayPal, Payment_Method_Venmo,Age_Group_Adult,
-    Age_Group_Old, Age_Group_Teenager, Age_Group_Young_Adult,
-    FOP_Annually, FOP_Bi_Weekly,
-    FOP_Every_3_Months,
-    FOP_Fortnightly, FOP_Monthly,
-    FOP_Quarterly, FOP_Weekly
-    ]]) 
+new_prediction = decision_tree_model.predict([[gender,item_purchased,category,discount,payment_method,age_group,fop,age,purchased_amount,review_rating,previous_purchases]]) 
 prediction_subscription = output[0]
 st.write('We predict your Subcription is {}'.format(prediction_subscription)) 

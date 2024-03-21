@@ -73,8 +73,9 @@ with open(file_path2, 'wb') as output_pickle:
 
 fig, ax = plt.subplots() 
 ax = sns.barplot(x=rf_classifier.feature_importances_, y=features.columns) 
-plt.title('Which features are the most important for species prediction?') 
+plt.title('Important Features that could predict user subcription') 
 plt.xlabel('Importance') 
 plt.ylabel('Feature') 
 plt.tight_layout() 
-fig.savefig('Pickle/rf_feature_importance.png')
+
+fig.savefig('Pickle/rf_feature_importance.png') 
