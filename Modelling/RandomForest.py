@@ -15,8 +15,8 @@ file_path2 = os.path.join(current_directory, 'Pickle/rf_output.pickle')
 df = pd.read_csv('shopping_behavior_new_updated.csv')
 
 features = df[['Age', 'Gender', 'Item Purchased', 'Category',
-                     'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
-                     'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+               'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
+                'Discount Applied', 'Payment Method', 'Frequency of Purchases']]
 
 output = df['Subscription Status']
 

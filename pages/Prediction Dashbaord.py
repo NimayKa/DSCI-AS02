@@ -8,8 +8,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+
  
-st.title('Penguin Classifier') 
+st.title('Subscription Prediction using ML') 
 
 st.write("This app uses 6 inputs to predict the species of penguin using " 
 
@@ -21,6 +22,8 @@ store_file = st.file_uploader('Upload your own penguin data')
 
 if store_file is None: 
     store_df = pd.read_csv('shopping_behavior_new_updated.csv') 
+    
+    #Decision Tree Pickle
     dtc_pickle = open('./Pickle/dtc.pickle', 'rb') 
     
     map_pickle = open('./Pickle/dtc_output.pickle', 'rb') 
@@ -32,10 +35,22 @@ if store_file is None:
     dtc_pickle.close() 
 
     map_pickle.close() 
+    
+    #Random Forest Pickle
+    rf_pickle = open('./Pickle/rf.pickle', 'rb') 
+    rf_output_pickle = open('./Pickle/rf_output.pickle', 'rb') 
+
+    rf_classifier = pickle.load(rf_pickle)
+    rf_output = pickle.load(rf_output_pickle)
+    
+    rf_pickle.close()
+    rf_output_pickle.close()
 
 else: 
     store_df = pd.read_csv(store_file) 
     store_df = store_df.dropna() 
+    
+    #Decision Tree Model
     output = store_df['Subscription Status']
 
     features = store_df[['Gender', 'Item Purchased', 'Category',
@@ -74,6 +89,56 @@ else:
     print("Classification Report for Testing Data:")
     print(classification_report(y_test, y_test_pred))
 
+    # Random Forest Model
+    features = df[['Age', 'Gender', 'Item Purchased', 'Category',
+               'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
+                'Discount Applied', 'Payment Method', 'Frequency of Purchases']]
+
+    output = df['Subscription Status']
+
+    label_encoder = LabelEncoder()
+
+    for column in features:
+        if features[column].dtype == 'object':
+            features[column] = label_encoder.fit_transform(features[column])
+
+    X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
+
+    rf_classifier = RandomForestClassifier(random_state=30)
+
+    param_grid = {
+        'n_estimators': [50, 100, 150],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4]
+    }
+
+    # Perform GridSearchCV for hyperparameter tuning
+    grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+    grid_search.fit(X_train, y_train)
+
+    # Get the best hyperparameters
+    best_params = grid_search.best_params_
+
+    rf_classifier = RandomForestClassifier(**best_params, random_state=30)
+    rf_classifier.fit(X_train, y_train)
+
+    y_pred = rf_classifier.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred)
+
+    y_train_pred = rf_classifier.predict(X_train)
+    y_test_pred = rf_classifier.predict(X_test)
+
+    train_accuracy = accuracy_score(y_train, y_train_pred)
+    test_accuracy = accuracy_score(y_test, y_test_pred)
+
+    print("Training Accuracy:", train_accuracy)
+    print("Testing Accuracy:", test_accuracy)
+    print("Classification Report:")
+    print(classification_report(y_test, y_test_pred))
+
+
 unique_gender = store_df['Gender'].unique()
 unique_category = store_df['Category'].unique()
 unique_item_purchase = store_df['Item Purchased'].unique()
@@ -94,7 +159,7 @@ with st.form('user_inputs'):
     payment_method = st.selectbox('Payment Method', options=unique_payment)
     age_group = st.selectbox('Age Group',options=unique_age_group)
     fop = st.selectbox('Frequency of Purchases',options=unique_fop)
-    st.form_submit_button() 
+    button_submit = st.form_submit_button('Prediction Result')
 
 #preprocessing
 if gender =='Male':
@@ -205,7 +270,10 @@ elif fop == 'Monthly':
     fop = 4
 elif fop == 'Every 3 Months':
     fop = 2
-
-new_prediction = decision_tree_model.predict([[gender,item_purchased,category,discount,payment_method,age_group,fop,age,purchased_amount,review_rating,previous_purchases]]) 
-prediction_subscription = output[0]
-st.write('We predict your Subcription is {}'.format(prediction_subscription)) 
+    
+if button_submit is True:
+    new_prediction = decision_tree_model.predict([[gender,item_purchased,category,discount,payment_method,age_group,fop,age,purchased_amount,review_rating,previous_purchases]]) 
+    new_prediction_rf = rf_classifier.predict([[age, gender, item_purchased, category, purchased_amount, review_rating, previous_purchases, discount, payment_method, fop]])
+    prediction_subscription = output[0]
+    st.success('We predict your Subcription is {}'.format(prediction_subscription)) 
+    st.success('Random Forest Prediction is {}'.format(new_prediction_rf)) 
