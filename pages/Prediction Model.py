@@ -211,18 +211,29 @@ with cols3:
             grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
             grid_search.fit(X_train, y_train)
 
-            # Get the best hyperparameters
             best_params = grid_search.best_params_
 
             rf_classifier = RandomForestClassifier(**best_params, random_state=30)
             rf_classifier.fit(X_train, y_train)
+    
 
-            gb_classifier = GradientBoostingClassifier(**best_params, random_state=30)
+            #Gradient Boosting
+            gb_best_params = {
+                'learning_rate': 0.05,
+                'max_depth': 4,
+                'min_samples_leaf': 4,
+                'min_samples_split': 2,
+                'n_estimators': 50
+            }
+
+            gb_classifier = GradientBoostingClassifier(**gb_best_params, random_state=30)
             gb_classifier.fit(X_train, y_train)
-     
+            prediction_gb = gb_classifier.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
+
+
             prediction_dtc = decision_tree_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
             prediction_rf = rf_classifier.predict([[gender, item_purchased, category, discount, payment_method, fop, age, purchased_amount, age_group, review_rating, previous_purchases]])
-            prediction_gb = gb_classifier.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
+
 
             st.subheader("Decision Tree Model", divider='rainbow')
             st.success('Decision tree Prediction is {}'.format(prediction_dtc[0])) 
