@@ -6,6 +6,7 @@ import pickle
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier 
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score
 
@@ -215,11 +216,14 @@ with cols3:
 
             rf_classifier = RandomForestClassifier(**best_params, random_state=30)
             rf_classifier.fit(X_train, y_train)
-                    
+
+            gb_classifier = GradientBoostingClassifier(**best_params, random_state=30)
+            gb_classifier.fit(X_train, y_train)
      
             prediction_dtc = decision_tree_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
             prediction_rf = rf_classifier.predict([[gender, item_purchased, category, discount, payment_method, fop, age, purchased_amount, age_group, review_rating, previous_purchases]])
-           
+            prediction_gb = gb_classifier.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
+
             st.subheader("Decision Tree Model", divider='rainbow')
             st.success('Decision tree Prediction is {}'.format(prediction_dtc[0])) 
             dtc_accuracy_train = accuracy_score(y_train, decision_tree_model.predict(X_train)) * 100
@@ -239,6 +243,12 @@ with cols3:
             st.markdown(" ")
               
             st.subheader("Gradient Boosting", divider='rainbow')
+            st.success('Gradient Boosting Prediction is {}'.format(prediction_gb[0])) 
+            gb_accuracy_train = accuracy_score(y_train, gb_classifier.predict(X_train)) * 100
+            gb_accuracy_test = accuracy_score(y_test, gb_classifier.predict(X_test)) * 100
+            st.write(f"Gradient Boosting Model Training Accuracy: {gb_accuracy_train:.2f}%")
+            st.write(f"Gradient Boosting Model Testing Accuracy: {gb_accuracy_test:.2f}%")
+
 
 st.markdown("____")
 if button_submit:
@@ -269,4 +279,8 @@ with row3:
     if button_submit:
         st.markdown("")
         st.write('Gradient Boosting')
+        fig3, ax=plt.subplots(figsize=(10,6))
+        sns.barplot(x=gb_classifier.feature_importances_, y=features.columns, ax=ax)
+        ax.set_title('Important Features that could predict user subscription using Gradient Boosting')
+        st.pyplot(fig3)
 
