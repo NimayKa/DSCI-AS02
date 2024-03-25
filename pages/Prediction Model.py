@@ -201,19 +201,14 @@ with cols3:
     
             X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.3, random_state=42)
             
-            param_grid = {
-                'n_estimators': [50, 100, 150],
-                'max_depth': [None, 10, 20],
-                'min_samples_split': [2, 5, 10],
-                'min_samples_leaf': [1, 2, 4]
+            rf_best_params = {
+                'n_estimators': 100,
+                'max_depth': 10,
+                'min_samples_split': 10,
+                'min_samples_leaf': 2
             }
 
-            grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-            grid_search.fit(X_train, y_train)
-
-            best_params = grid_search.best_params_
-
-            rf_classifier = RandomForestClassifier(**best_params, random_state=30)
+            rf_classifier = RandomForestClassifier(**rf_best_params, random_state=30)
             rf_classifier.fit(X_train, y_train)
     
 
