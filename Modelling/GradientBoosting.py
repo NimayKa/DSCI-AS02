@@ -33,35 +33,7 @@ num_features = pd.get_dummies(num_features)
 features = pd.concat([features, num_features], axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
-
-gb_classifier = GradientBoostingClassifier(random_state=30)
-
-param_grid = {
-    'n_estimators': [50, 100, 150],
-    'learning_rate': [0.05, 0.1, 0.2],
-    'max_depth': [3, 4, 5],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4]
-}
-
-# gridsearchcv for hyperparameter tuning
-grid_search = GridSearchCV(estimator=gb_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-grid_search.fit(X_train, y_train)
-
-# Iterate over each parameter combination and print the parameters along with their corresponding values
-print("Grid search results:")
-for i in range(len(grid_search.cv_results_['params'])):
-    print("Parameters:", grid_search.cv_results_['params'][i])
-    print("Mean Test Score:", grid_search.cv_results_['mean_test_score'][i])
-    print("Rank:", grid_search.cv_results_['rank_test_score'][i])
-    print()
-best_params = grid_search.best_params_
-print (best_params)
-
-# After fitting the GridSearchCV object
-grid_search.fit(X_train, y_train)
-
-gb_classifier = GradientBoostingClassifier(**best_params, random_state=30)
+gb_classifier = GradientBoostingClassifier(learning_rate= 0.05, max_depth= 3, min_samples_leaf= 1, min_samples_split= 2, n_estimators= 50, random_state=30)
 gb_classifier.fit(X_train, y_train)
 
 y_pred = gb_classifier.predict(X_test)
@@ -85,7 +57,7 @@ with open(file_path, 'wb') as gb_pickle:
 
 # passing the mapping values
 with open(file_path2, 'wb') as output_pickle:
-    pickle.dump(output, output_pickle) 
+    pickle.dump(uniques, output_pickle) 
     output_pickle.close()
 
 fig, ax = plt.subplots()
