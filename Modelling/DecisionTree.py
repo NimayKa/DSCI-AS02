@@ -17,6 +17,7 @@ store_df = pd.read_csv('shopping_behavior_new_updated.csv')
 store_df.dropna(inplace=True)
 
 output = store_df['Subscription Status']
+output,uniques = pd.factorize(output)
 
 features = store_df[['Gender', 'Item Purchased', 'Category',
                      'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
@@ -34,7 +35,8 @@ for feature in features:
     encoders[feature] = encoder
 for feature in features:
     print (feature)
-    print (features[feature].unique())   
+    print (features[feature].unique())  
+     
 num_features = pd.get_dummies(num_features)  
 features = pd.concat([features, num_features], axis=1)
 
@@ -64,7 +66,7 @@ with open(file_path, 'wb') as rf_pickle:
 	rf_pickle.close() 
 
 with open(file_path2, 'wb') as output_pickle:
-	pickle.dump(output, output_pickle) 
+	pickle.dump(uniques, output_pickle) 
 	output_pickle.close() 
 
 fig, ax = plt.subplots() 

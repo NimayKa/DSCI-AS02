@@ -13,117 +13,86 @@ file_path = os.path.join(current_directory, 'Pickle/gb.pickle')
 file_path2 = os.path.join(current_directory, 'Pickle/gb_output.pickle')
 
 df = pd.read_csv('shopping_behavior_new_updated.csv')
-
-features = df[['Age', 'Gender', 'Item Purchased', 'Category',
-                     'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
-                     'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+df.dropna(inplace=True)
 
 output = df['Subscription Status']
+output,uniques = pd.factorize(output)
 
-# label_encoder = LabelEncoder()
+features = df[['Gender', 'Item Purchased', 'Category',
+                     'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+num_features =  df[['Age','Purchase Amount (USD)','Review Rating','Previous Purchases']]
 
-# for column in features:
-#     if features[column].dtype == 'object':
-#         features[column] = label_encoder.fit_transform(features[column])
+encoders = {}
+for feature in features:
+    encoder = LabelEncoder()
+    encoded_values = encoder.fit_transform(features[feature])
+    features.loc[:, feature] = encoded_values
+    encoders[feature] = encoder
 
-# X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
+num_features = pd.get_dummies(num_features)  
+features = pd.concat([features, num_features], axis=1)
 
-# gb_classifier = GradientBoostingClassifier(random_state=30)
+X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
 
-# param_grid = {
-#     'n_estimators': [50, 100, 150],
-#     'learning_rate': [0.05, 0.1, 0.2],
-#     'max_depth': [3, 4, 5],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4]
-# }
+gb_classifier = GradientBoostingClassifier(random_state=30)
 
-# # gridsearchcv for hyperparameter tuning
-# grid_search = GridSearchCV(estimator=gb_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-# grid_search.fit(X_train, y_train)
-
-# # finding the best hyperparameters
-# best_params = grid_search.best_params_
-
-# # After fitting the GridSearchCV object
-# grid_search.fit(X_train, y_train)
-
-# gb_classifier = GradientBoostingClassifier(**best_params, random_state=30)
-# gb_classifier.fit(X_train, y_train)
-
-# y_pred = gb_classifier.predict(X_test)
-
-# accuracy = accuracy_score(y_test, y_pred)
-
-# y_train_pred = gb_classifier.predict(X_train)
-# y_test_pred = gb_classifier.predict(X_test)
-
-# train_accuracy = accuracy_score(y_train, y_train_pred)
-# test_accuracy = accuracy_score(y_test, y_test_pred)
-
-# print("Training Accuracy:", train_accuracy)
-# print("Testing Accuracy:", test_accuracy)
-# print("Classification Report:")
-# print(classification_report(y_test, y_test_pred))
-
-# with open(file_path, 'wb') as gb_pickle:
-#     pickle.dump(gb_classifier, gb_pickle)
-#     gb_pickle.close()
-
-# # passing the mapping values
-# with open(file_path2, 'wb') as output_pickle:
-#     pickle.dump(output, output_pickle) 
-#     output_pickle.close()
-
-# fig, ax = plt.subplots()
-# ax = sns.barplot(x=gb_classifier.feature_importances_, y=features.columns)
-# plt.title('Important Features that could predict user subscription')
-# plt.xlabel('Importance')
-# plt.ylabel('Feature')
-# plt.tight_layout()
-
-# fig.savefig('Pickle/gb_feature_importance.png')
-
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-
-# Assuming you have features and labels defined
-
-# Encode categorical labels if needed
-label_encoder = LabelEncoder()
-for column in features.columns:
-    features[column] = label_encoder.fit_transform(features[column])
-
-# Split the data into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=42)
-
-# Define the parameter grid
 param_grid = {
+    'n_estimators': [50, 100, 150],
     'learning_rate': [0.05, 0.1, 0.2],
     'max_depth': [3, 4, 5],
-    'min_samples_leaf': [1, 2, 4],
     'min_samples_split': [2, 5, 10],
-    'n_estimators': [50, 100, 150]
+    'min_samples_leaf': [1, 2, 4]
 }
 
-# Create the GradientBoostingClassifier
-gb_classifier = GradientBoostingClassifier()
-
-# Instantiate the grid search
-grid_search = GridSearchCV(estimator=gb_classifier, param_grid=param_grid, cv=3, n_jobs=-1, verbose=2)
-
-# Fit the grid search to the data
+# gridsearchcv for hyperparameter tuning
+grid_search = GridSearchCV(estimator=gb_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
 grid_search.fit(X_train, y_train)
 
-# Print the best parameters found
-print("Best parameters found:")
-print(grid_search.best_params_)
+# Iterate over each parameter combination and print the parameters along with their corresponding values
+print("Grid search results:")
+for i in range(len(grid_search.cv_results_['params'])):
+    print("Parameters:", grid_search.cv_results_['params'][i])
+    print("Mean Test Score:", grid_search.cv_results_['mean_test_score'][i])
+    print("Rank:", grid_search.cv_results_['rank_test_score'][i])
+    print()
+best_params = grid_search.best_params_
+print (best_params)
 
-# Get the best model
-best_model = grid_search.best_estimator_
+# After fitting the GridSearchCV object
+grid_search.fit(X_train, y_train)
 
-# Evaluate the best model on the test set
-test_accuracy = best_model.score(X_test, y_test)
-print("Test Accuracy:", test_accuracy)
+gb_classifier = GradientBoostingClassifier(**best_params, random_state=30)
+gb_classifier.fit(X_train, y_train)
+
+y_pred = gb_classifier.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+
+y_train_pred = gb_classifier.predict(X_train)
+y_test_pred = gb_classifier.predict(X_test)
+
+train_accuracy = accuracy_score(y_train, y_train_pred)
+test_accuracy = accuracy_score(y_test, y_test_pred)
+
+print("Training Accuracy:", train_accuracy)
+print("Testing Accuracy:", test_accuracy)
+print("Classification Report:")
+print(classification_report(y_test, y_test_pred))
+
+with open(file_path, 'wb') as gb_pickle:
+    pickle.dump(gb_classifier, gb_pickle)
+    gb_pickle.close()
+
+# passing the mapping values
+with open(file_path2, 'wb') as output_pickle:
+    pickle.dump(output, output_pickle) 
+    output_pickle.close()
+
+fig, ax = plt.subplots()
+ax = sns.barplot(x=gb_classifier.feature_importances_, y=features.columns)
+plt.title('Important Features that could predict user subscription')
+plt.xlabel('Importance')
+plt.ylabel('Feature')
+plt.tight_layout()
+
+fig.savefig('Pickle/gb_feature_importance.png')

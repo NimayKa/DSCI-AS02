@@ -1,14 +1,6 @@
 import streamlit as st
-import seaborn as sns 
-import matplotlib.pyplot as plt 
 import pandas as pd 
 import pickle 
-from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier 
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score
 
 
 st.title('Subscription Prediction using ML') 
@@ -17,27 +9,23 @@ st.write("This application contains 3 Machine Learning models such as Decision T
          "\nPlease click the 'Prediction Result' button to show all the 3 Machine Learning Models.") 
 st.divider()
 
-# for white space 
-    
-with open('./Pickle/dtc.pickle', 'rb') as dtc_pickle:
-    decision_tree_model = pickle.load(dtc_pickle)
-    
-with open('./Pickle/rf.pickle', 'rb') as rf_pickle:
-    rf_classifier = pickle.load(rf_pickle)
 
+def load_model_and_output(model_file, output_file):
+    with open(model_file, 'rb') as model_pickle, open(output_file, 'rb') as output_pickle:
+        model = pickle.load(model_pickle)
+        output = pickle.load(output_pickle)
+    return model, output
+
+rf_model, rf_output = load_model_and_output('./Pickle/rf.pickle', './Pickle/rf_output.pickle')
+ 
 store_df = pd.read_csv('shopping_behavior_new_updated.csv') 
-features = store_df[['Age', 'Gender', 'Item Purchased', 'Category',
-               'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
-                'Discount Applied', 'Payment Method', 'Frequency of Purchases']]
-
 unique_gender = store_df['Gender'].unique()
 unique_category = store_df['Category'].unique()
 unique_item_purchase = store_df['Item Purchased'].unique()
 unique_payment = store_df['Payment Method'].unique()
 unique_age_group = store_df['Age Group'].unique()
 unique_fop = store_df['Frequency of Purchases'].unique()
-unique_discount = store_df['Discount Applied'].unique()
-            
+unique_discount = store_df['Discount Applied'].unique()            
 for _ in range (2):
     st.markdown("") 
        
@@ -76,16 +64,7 @@ with cols2:
             button_submit = st.button('Prediction Result')
             
 with cols3:
-        if button_submit:
-            label_encoder = LabelEncoder()
-            features = store_df[['Gender', 'Item Purchased', 'Category',
-                                'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
-            num_features =  store_df[['Age','Purchase Amount (USD)','Review Rating','Previous Purchases']]
 
-            for column in features:
-                if features[column].dtype == 'object':
-                    features[column] = label_encoder.fit_transform(features[column])
-            output = store_df['Subscription Status']
             
             if gender =='Male':
                 gender = 0
@@ -196,97 +175,10 @@ with cols3:
             elif fop == 'Every 3 Months':
                 fop = 2
                 
-            num_features = pd.get_dummies(num_features)  
-            features = pd.concat([features, num_features], axis=1)
-    
-            X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.3, random_state=42)
-            
-            rf_best_params = {
-                'n_estimators': 100,
-                'max_depth': 10,
-                'min_samples_split': 10,
-                'min_samples_leaf': 2
-            }
+                
+                
 
-            rf_classifier = RandomForestClassifier(**rf_best_params, random_state=30)
-            rf_classifier.fit(X_train, y_train)
-    
-
-            #Gradient Boosting
-            gb_best_params = {
-                'learning_rate': 0.05,
-                'max_depth': 4,
-                'min_samples_leaf': 4,
-                'min_samples_split': 2,
-                'n_estimators': 50
-            }
-
-            gb_classifier = GradientBoostingClassifier(**gb_best_params, random_state=30)
-            gb_classifier.fit(X_train, y_train)
-            prediction_gb = gb_classifier.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
-
-
-            prediction_dtc = decision_tree_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
-            prediction_rf = rf_classifier.predict([[gender, item_purchased, category, discount, payment_method, fop, age, purchased_amount, age_group, review_rating, previous_purchases]])
-
-
-            st.subheader("Decision Tree Model", divider='rainbow')
-            st.success('Decision tree Prediction is {}'.format(prediction_dtc[0])) 
-            dtc_accuracy_train = accuracy_score(y_train, decision_tree_model.predict(X_train)) * 100
-            dtc_accuracy_test = accuracy_score(y_test, decision_tree_model.predict(X_test)) * 100
-            st.write(f"Decision Tree Model Training Accuracy: {dtc_accuracy_train:.2f}%")
-            st.write(f"Decision Tree Model Testing Accuracy: {dtc_accuracy_test:.2f}%")
-
-            st.markdown(" ")
-            
-            st.subheader("Random Forest Model", divider='rainbow')
-            st.success('Random Forest Prediction is {}'.format(prediction_rf[0])) 
-            rf_accuracy_train = accuracy_score(y_train, rf_classifier.predict(X_train)) * 100
-            rf_accuracy_test = accuracy_score(y_test, rf_classifier.predict(X_test)) * 100
-            st.write(f"Random Forest Model Training Accuracy: {rf_accuracy_train:.2f}%")
-            st.write(f"Random Forest Model Testing Accuracy: {rf_accuracy_test:.2f}%")
-            
-            st.markdown(" ")
-              
-            st.subheader("Gradient Boosting", divider='rainbow')
-            st.success('Gradient Boosting Prediction is {}'.format(prediction_gb[0])) 
-            gb_accuracy_train = accuracy_score(y_train, gb_classifier.predict(X_train)) * 100
-            gb_accuracy_test = accuracy_score(y_test, gb_classifier.predict(X_test)) * 100
-            st.write(f"Gradient Boosting Model Training Accuracy: {gb_accuracy_train:.2f}%")
-            st.write(f"Gradient Boosting Model Testing Accuracy: {gb_accuracy_test:.2f}%")
-
-
-st.markdown("____")
-if button_submit:
-    st.header('Feature Importance Chart For 3 Models')
-        
-            
-_, row1, row2, row3, _ = st.columns((0.3,4,4,4,0.2), gap='medium')
-
-with row1:
-    if button_submit:
-        st.markdown("")
-        st.write('Decision Tree')
-        fig2, ax=plt.subplots(figsize=(10,6))
-        sns.barplot(x=decision_tree_model.feature_importances_, y=features.columns, ax=ax)
-        ax.set_title('Important Features that could predict user subcription using Decision Tree')
-        st.pyplot(fig2)
-        
-with row2:
-    if button_submit:
-        st.markdown("")
-        st.write('Random Forest')
-        fig2, ax=plt.subplots(figsize=(10,6))
-        sns.barplot(x=rf_classifier.feature_importances_, y=features.columns, ax=ax)
-        ax.set_title('Important Features that could predict user subcription using Random Forest')
-        st.pyplot(fig2)
-
-with row3:
-    if button_submit:
-        st.markdown("")
-        st.write('Gradient Boosting')
-        fig3, ax=plt.subplots(figsize=(10,6))
-        sns.barplot(x=gb_classifier.feature_importances_, y=features.columns, ax=ax)
-        ax.set_title('Important Features that could predict user subscription using Gradient Boosting')
-        st.pyplot(fig3)
+            prediction_rf = rf_model.predict([[gender, item_purchased, category, discount, payment_method, fop, age, purchased_amount, age_group, review_rating, previous_purchases]])
+            prediction_subscription = rf_output[prediction_rf][0]
+            st.success('Random Forest Prediction is {}'.format(prediction_subscription)) 
 

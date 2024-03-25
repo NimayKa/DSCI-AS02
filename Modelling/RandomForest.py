@@ -13,38 +13,27 @@ file_path = os.path.join(current_directory, 'Pickle/rf.pickle')
 file_path2 = os.path.join(current_directory, 'Pickle/rf_output.pickle')
 
 df = pd.read_csv('shopping_behavior_new_updated.csv')
-
-features = df[['Age', 'Gender', 'Item Purchased', 'Category',
-               'Purchase Amount (USD)', 'Review Rating','Previous Purchases',
-                'Discount Applied', 'Payment Method', 'Frequency of Purchases']]
+df.dropna(inplace=True)
 
 output = df['Subscription Status']
+output,uniques = pd.factorize(output)
 
-label_encoder = LabelEncoder()
+features = df[['Gender', 'Item Purchased', 'Category',
+                     'Discount Applied', 'Payment Method', 'Age Group', 'Frequency of Purchases']]
+num_features =  df[['Age','Purchase Amount (USD)','Review Rating','Previous Purchases']]
 
-for column in features:
-    if features[column].dtype == 'object':
-        features[column] = label_encoder.fit_transform(features[column])
+encoders = {}
+for feature in features:
+    encoder = LabelEncoder()
+    encoded_values = encoder.fit_transform(features[feature])
+    features.loc[:, feature] = encoded_values
+    encoders[feature] = encoder
+
+num_features = pd.get_dummies(num_features)  
+features = pd.concat([features, num_features], axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
-
-rf_classifier = RandomForestClassifier(random_state=30)
-
-param_grid = {
-    'n_estimators': [50, 100, 150],
-    'max_depth': [None, 10, 20],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4]
-}
-
-# Perform GridSearchCV for hyperparameter tuning
-grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-grid_search.fit(X_train, y_train)
-
-# Get the best hyperparameters
-best_params = grid_search.best_params_
-
-rf_classifier = RandomForestClassifier(**best_params, random_state=30)
+rf_classifier = RandomForestClassifier(max_depth= 10, min_samples_leaf= 4, min_samples_split= 10, n_estimators= 150, random_state=30)
 rf_classifier.fit(X_train, y_train)
 
 y_pred = rf_classifier.predict(X_test)
@@ -68,7 +57,7 @@ with open(file_path, 'wb') as rf_pickle:
 
 # passing the mapping values
 with open(file_path2, 'wb') as output_pickle:
-	pickle.dump(output, output_pickle) 
+	pickle.dump(uniques, output_pickle) 
 	output_pickle.close() 
 
 fig, ax = plt.subplots() 
