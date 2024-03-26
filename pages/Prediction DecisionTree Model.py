@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd 
 import pickle 
+from Modelling import DecisionTree as dc
 
-st.title('Subscription Prediction using ML') 
-st.write("This application contains 3 Machine Learning models such as Decision Tree, Random Forest and Gradient Boosting model."
-         " It is use to predict the subscription status based of the 11 features available in the user input section.\n"
-         "\nPlease click the 'Prediction Result' button to show all the 3 Machine Learning Models.") 
+st.title('Subscription Prediction using Decision Tree Model') 
+st.markdown("**This page uses the Random Forest model to predict the subscription status based on the 11 features available in the user input section.**")
+st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (accuracy).**")
 st.divider()
 
 
@@ -139,13 +139,22 @@ with cols2:
             
 with cols3:
             with st.container():
-                st.header('Feature Importance For Decision Tree Model')
-                st.image('./Pickle/dtc_feature_importance.png',width=500)
-            with st.container():
-                st.header('Result')
+                st.subheader('Result', divider='gray')
                 if button_submit is True:
                     gender, item_purchased, category, discount, payment_method, age_group, fop = update_parameters(gender, item_purchased, category, discount, payment_method, age_group, fop)
                     prediction_dtc = dt_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
                     prediction_subscription = dt_output[prediction_dtc][0]
-                    st.success('Decision Tree Prediction is {}'.format(prediction_subscription)) 
+                    st.success('**Decision Tree Prediction is {}**'.format(prediction_subscription)) 
+                    st.markdown("")
+                    st.write('**Model Evaluation:**')
+                    st.success("**Prediction Accuracy: {:.2f}%**".format(round(dc.test_accuracy * 100)))
+            
+            for _ in range (3):
+                st.markdown("") 
+            
+            with st.container():
+                st.subheader('Feature Importance For Decision Tree Model', divider='gray')
+                st.image('./Pickle/dtc_feature_importance.png',width=500)
+                
+                  
 

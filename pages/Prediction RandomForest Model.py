@@ -1,14 +1,14 @@
 import streamlit as st
 import pandas as pd 
 import pickle 
+from Modelling import RandomForest as rf
+from sklearn.metrics import accuracy_score
 
 
-st.title('Subscription Prediction using ML') 
-st.write("This application contains 3 Machine Learning models such as Decision Tree, Random Forest and Gradient Boosting model."
-         " It is use to predict the subscription status based of the 11 features available in the user input section.\n"
-         "\nPlease click the 'Prediction Result' button to show all the 3 Machine Learning Models.") 
+st.title('Subscription Prediction using Random Forest Model') 
+st.markdown("**This page uses the Random Forest model to predict the subscription status based on the 11 features available in the user input section.**")
+st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (accuracy).**")
 st.divider()
-
 
 def load_model_and_output(model_file, output_file):
     with open(model_file, 'rb') as model_pickle, open(output_file, 'rb') as output_pickle:
@@ -91,6 +91,7 @@ def update_parameters(gender, item_purchased, category, discount, payment_method
     return gender, item_purchased, category, discount, payment_method, age_group, fop
 
 rf_model, rf_output = load_model_and_output('./Pickle/rf.pickle', './Pickle/rf_output.pickle')
+
  
 store_df = pd.read_csv('shopping_behavior_new_updated.csv') 
 unique_gender = store_df['Gender'].unique()
@@ -138,15 +139,23 @@ with cols2:
             review_rating = st.number_input('Review Rating', min_value=0, max_value=5)
             button_submit = st.button('Prediction Result')
             
+            
 with cols3:
             with st.container():
-                st.header('Feature Importance For Random Forest Model')
-                st.image('./Pickle/rf_feature_importance.png',width=500)
-            with st.container():
-                st.header('Result')
+                st.subheader('Result', divider='gray')
                 if button_submit is True:
                     gender, item_purchased, category, discount, payment_method, age_group, fop = update_parameters(gender, item_purchased, category, discount, payment_method, age_group, fop)
                     prediction_rf = rf_model.predict([[gender, item_purchased, category, discount, payment_method, fop, age, purchased_amount, age_group, review_rating, previous_purchases]])
                     prediction_subscription = rf_output[prediction_rf][0]
-                    st.success('Random Forest Prediction is {}'.format(prediction_subscription)) 
-
+                    st.success('**Random Forest Prediction is {}**'.format(prediction_subscription)) 
+                    st.markdown("")
+                    st.write('**Model Evaluation:**')
+                    st.success('**Prediction Accuracy: {:.2f}%**'.format(round(rf.test_accuracy * 100)))
+                    
+            for _ in range (3):
+                st.markdown("") 
+            
+            with st.container():
+                st.subheader('Feature Importance For Random Forest Model', divider='gray')
+                st.image('./Pickle/rf_feature_importance.png',width=500)
+                        
