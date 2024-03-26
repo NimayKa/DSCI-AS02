@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd 
 import pickle 
+from Modelling import  GradientBoosting as GB
 
-st.title('Subscription Prediction using ML') 
-st.write("This application contains 3 Machine Learning models such as Decision Tree, Random Forest and Gradient Boosting model."
-         " It is use to predict the subscription status based of the 11 features available in the user input section.\n"
-         "\nPlease click the 'Prediction Result' button to show all the 3 Machine Learning Models.") 
+st.title('Subscription Prediction using Gradient Boost Model') 
+st.markdown("**This page uses the Random Forest model to predict the subscription status based on the 11 features available in the user input section.**")
+st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (accuracy).**")
 st.divider()
 
 
@@ -135,14 +135,22 @@ with cols2:
             
             button_submit = st.button('Prediction Result')
             
-with cols3:  
-            with st.container():
-                st.header('Feature Importance For Gradient Boosting Model')
-                st.image('./Pickle/gb_feature_importance.png',width=500)
+with cols3:
             with st.container():
                 st.header('Result')
                 if button_submit is True:
                     gender, item_purchased, category, discount, payment_method, age_group, fop = update_parameters(gender, item_purchased, category, discount, payment_method, age_group, fop)
                     prediction_gb = gb_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
                     prediction_subscription = gb_output[prediction_gb][0]
-                    st.success('Gradient Boosting Prediction is {}'.format(prediction_subscription))
+                    st.success('**Gradient Boost Prediction is {}**'.format(prediction_subscription)) 
+                    st.markdown("")
+                    st.write('**Model Evaluation:**')
+                    st.success('**Prediction Accuracy: {:.2f}%**'.format(round(GB.test_accuracy * 100)))
+                    
+            for _ in range (3):
+                st.markdown("") 
+            
+            with st.container():
+                st.subheader('Feature Importance For Gradient Boost Model', divider='gray')
+                st.image('./Pickle/gb_feature_importance.png',width=500)
+                        
