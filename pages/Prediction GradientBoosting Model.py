@@ -145,5 +145,4 @@ with cols3:
                     gender, item_purchased, category, discount, payment_method, age_group, fop = update_parameters(gender, item_purchased, category, discount, payment_method, age_group, fop)
                     prediction_gb = gb_model.predict([[gender, item_purchased, category, discount, payment_method, age_group, fop, age, purchased_amount, review_rating, previous_purchases]])
                     prediction_subscription = gb_output[prediction_gb][0]
-                    st.success('Gradient Boosting Prediction is {}'.format(prediction_subscription)) 
-
+                    st.success('Gradient Boosting Prediction is {}'.format(prediction_subscription))
