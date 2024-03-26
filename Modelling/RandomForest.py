@@ -33,7 +33,7 @@ num_features = pd.get_dummies(num_features)
 features = pd.concat([features, num_features], axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(features, output, test_size=0.2, random_state=30)
-rf_classifier = RandomForestClassifier(max_depth= 10, min_samples_leaf= 4, min_samples_split= 10, n_estimators= 150, random_state=30)
+rf_classifier = RandomForestClassifier(max_depth= 10, min_samples_leaf= 4, min_samples_split= 10, n_estimators= 150, random_state=42)
 rf_classifier.fit(X_train, y_train)
 
 y_pred = rf_classifier.predict(X_test)
