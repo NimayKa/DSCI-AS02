@@ -5,7 +5,7 @@ import seaborn as sns
 import pickle 
 from sklearn.model_selection import train_test_split 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report 
+from sklearn.metrics import accuracy_score,f1_score
 from sklearn.preprocessing import LabelEncoder
 
 pd.set_option('display.max_columns', None)
@@ -51,15 +51,14 @@ y_test_pred = decision_tree_model.predict(x_test)
 
 train_accuracy = accuracy_score(y_train_pred, y_train)
 test_accuracy = accuracy_score(y_test_pred, y_test)
+train_f1score = f1_score(y_train_pred, y_train)
+test_f1score = f1_score(y_test_pred, y_test)
 
 print("Training Accuracy:", train_accuracy)
 print("Testing Accuracy:", test_accuracy)
 
-print("Classification Report for Training Data:")
-print(classification_report(y_train, y_train_pred))
-
-print("Classification Report for Testing Data:")
-print(classification_report(y_test, y_test_pred))
+print("Training Accuracy:", train_f1score)
+print("Testing Accuracy:", test_f1score)
 
 with open(file_path, 'wb') as rf_pickle:
 	pickle.dump(decision_tree_model, rf_pickle) 

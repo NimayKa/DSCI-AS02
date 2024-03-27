@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd 
 import pickle 
-from Modelling import  GradientBoosting as GB
+from Modelling import GradientBoosting as GB
 
 st.title('Subscription Prediction using Gradient Boost Model') 
 st.markdown("**This page uses the Random Forest model to predict the subscription status based on the 11 features available in the user input section.**")
-st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (accuracy).**")
+st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (Accuracy & F1 Score).**")
 st.divider()
 
 
@@ -146,6 +146,7 @@ with cols3:
                     st.markdown("")
                     st.write('**Model Evaluation:**')
                     st.success('**Prediction Accuracy: {:.2f}%**'.format(round(GB.test_accuracy * 100)))
+                    st.success('**Prediction F1 Score: {:.2f}%**'.format(round(GB.test_f1score * 100)))
                     
             for _ in range (3):
                 st.markdown("") 
