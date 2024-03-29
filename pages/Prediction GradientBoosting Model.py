@@ -4,7 +4,7 @@ import pickle
 from Modelling import GradientBoosting as GB
 
 st.title('Subscription Prediction using Gradient Boost Model') 
-st.markdown("**This page uses the Random Forest model to predict the subscription status based on the 11 features available in the user input section.**")
+st.markdown("**This page uses the Gradient Boosting model to predict the subscription status based on the 11 features available in the user input section.**")
 st.markdown("**Please click the 'Prediction Result' button to display the prediction results and the model evaluation (Accuracy & F1 Score).**")
 st.divider()
 
